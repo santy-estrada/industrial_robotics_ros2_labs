@@ -1,0 +1,149 @@
+<?xml version='1.0'?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="robot_car_seb">
+
+    <!-- PROPIEDADES -->
+    <xacro:property name="blx" value="${4/10}" />
+    <xacro:property name="bly" value="${4/10}" />
+    <xacro:property name="blz" value="${0.5/10}" />
+
+    <xacro:property name="m" value="1" />
+
+    <xacro:property name="olx_f" value="${1/10}" />
+    <xacro:property name="olx_b" value="${blx - 1/10}" />
+
+    <xacro:property name="oly" value="${(2 + 0.4/2)/10}" />
+    <xacro:property name="olz" value="${0/10}" />
+
+    <xacro:property name="crad" value="${(1/2)/10}" />
+    <xacro:property name="lrad" value="${0.4/10}" />
+
+
+    <!-- MACROS / FUNCIONES -->
+    <xacro:macro name="wheel_macro" params="p_name p_radius p_length">
+        <link name="${p_name}">
+            <visual>
+                <!-- box geometry -->
+                <geometry>
+                    <cylinder radius="${p_radius}" length="${p_length}" />
+                </geometry>
+                <origin xyz="0 0 0" rpy="${-pi/2} 0 0" />
+
+                <material name="grey">
+                    <color rgba="0.5 0.5 0.5 1.0" />
+                </material>
+            </visual>
+
+            <inertial>
+                <mass value="${m}" />
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <inertia ixx="${1/12*m*(p_length*p_length + 3*p_radius*p_radius)}" ixy="0" ixz="0"
+                    iyy="${1/12*m*(p_length*p_length + 3*p_radius*p_radius)}" iyz="0"
+                    izz="${1/2*m*p_radius*p_radius}" />
+            </inertial>
+
+            <collision>
+                <!-- box geometry -->
+                <geometry>
+                    <cylinder radius="${p_radius}" length="${p_length}" />
+                </geometry>
+                <origin xyz="0 0 0" rpy="${-pi/2} 0 0" />
+            </collision>
+        </link>
+    </xacro:macro>
+
+
+    <!-- INICIO ROBOT -->
+    <link name="base_link">
+        <!-- ... -->
+    </link>
+
+    <joint name="base_chassis_joint" type="fixed">
+        <parent link="base_link" />
+        <child link="chassis_link" />
+        <!--Crea
+        offsets the child con respecto a parent -->
+        <origin xyz="${-olx_f} 0 ${-olz}" rpy="0 0 0" />
+    </joint>
+
+    <link name="chassis_link">
+        <visual>
+            <!-- box geometry -->
+            <geometry>
+                <box size="${blx} ${bly} ${blz}" />
+            </geometry>
+            <!-- Esto mueve la caja desde el centro, no el origen con respecto a la caja-->
+            <origin xyz="${blx/2} 0 ${blz/2}" rpy="0 0 0" />
+        </visual>
+
+        <inertial>
+            <mass value="${m}" />
+            <origin xyz="0 0 0" rpy="0 0 0" />
+            <inertia ixx="${1/12*m*(blz*blz + bly*bly)}" ixy="0" ixz="0"
+                iyy="${1/12*m*(blx*blx + blz*blz)}" iyz="0" izz="${1/12*m*(bly*bly + blx*blx)}" />
+        </inertial>
+
+        <collision>
+            <!-- box geometry -->
+            <geometry>
+                <box size="${blx} ${bly} ${blz}" />
+            </geometry>
+            <origin xyz="${blx/2} 0 ${-blz/2}" rpy="0 0 0" />
+        </collision>
+    </link>
+    <!-- ... -->
+    <xacro:wheel_macro p_name="rwheel_link_front"
+        p_radius="${crad}"
+        p_length="${lrad}" />
+
+    <joint name="chassis_rwheel_joint" type="continuous">
+        <parent link="chassis_link" />
+        <child link="rwheel_link_front" />
+        <origin xyz="${olx_f} ${oly} ${olz}" rpy="0 0 0" />
+        <axis xyz="0 1 0" />
+        <limit effort="1" lower="0" upper="${2*pi}" velocity="1" />
+        <dynamics damping="1" friction="1" />
+    </joint>
+
+    <xacro:wheel_macro p_name="rwheel_link_back"
+        p_radius="${crad}"
+        p_length="${lrad}" />
+
+    <joint name="chassis_rwheel_joint" type="continuous">
+        <parent link="chassis_link" />
+        <child link="rwheel_link_back" />
+        <origin xyz="${olx_b} ${oly} ${olz}" rpy="0 0 0" />
+        <axis xyz="0 1 0" />
+        <limit effort="1" lower="0" upper="${2*pi}" velocity="1" />
+        <dynamics damping="1" friction="1" />
+    </joint>
+
+    <xacro:wheel_macro p_name="lwheel_link_front"
+        p_radius="${crad}"
+        p_length="${lrad}" />
+
+
+    <joint name="chassis_lwheel_joint" type="continuous">
+        <parent link="chassis_link" />
+        <child link="lwheel_link_front" />
+        <origin xyz="${olx_f} ${-oly} ${olz}" rpy="0 0 0" />
+        <axis xyz="0 1 0" />
+        <limit effort="1" lower="0" upper="${2*pi}" velocity="1" />
+        <dynamics damping="1" friction="1" />
+    </joint>
+
+    <xacro:wheel_macro p_name="lwheel_link_back"
+        p_radius="${crad}"
+        p_length="${lrad}" />
+
+
+    <joint name="chassis_lwheel_joint" type="continuous">
+        <parent link="chassis_link" />
+        <child link="lwheel_link_back" />
+        <origin xyz="${olx_b} ${-oly} ${olz}" rpy="0 0 0" />
+        <axis xyz="0 1 0" />
+        <limit effort="1" lower="0" upper="${2*pi}" velocity="1" />
+        <dynamics damping="1" friction="1" />
+    </joint>
+
+
+</robot>

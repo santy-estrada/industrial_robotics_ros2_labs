@@ -1,0 +1,182 @@
+<?xml version='1.0'?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="robot_arm_seb">
+
+    <!-- PROPIEDADES -->
+    <!-- Brazo -->
+    <xacro:property name="armLz" value="${120/1000}" />
+    <xacro:property name="armL1z" value="${110/1000}" />
+    <xacro:property name="armJz" value="${100/1000}" />
+    <xacro:property name="armLxy" value="${25/1000}" />
+
+    <xacro:property name="m" value="1" />
+
+    <!-- Base -->
+    <xacro:property name="bL" value="${100/1000}" />
+    <xacro:property name="bH" value="${10/1000}" />
+
+    <!-- Tool -->
+    <xacro:property name = "offset_tool" value="${10/1000}" />
+
+
+    <!-- MACROS / FUNCIONES -->
+    <!--Boxes:
+    x -> l; y -> w; z -> h -->
+    <xacro:macro name="arm_macro" params="p_name p_length p_width p_height p_offset">
+        <link name="${p_name}">
+            <visual>
+                <!-- box geometry -->
+                <geometry>
+                    <box size="${p_length} ${p_width} ${p_height}" />
+                </geometry>
+                <!-- Esto mueve la caja desde el centro, no el origen con respecto a la caja-->
+                <origin xyz="0 0 ${p_offset}" rpy="0 0 0" />
+
+                <material name="gray">
+                    <color rgba="0.5 0.5 0.5 1" />
+                </material>
+
+            </visual>
+
+            <inertial>
+                <mass value="${m}" />
+                <origin xyz="0 0 ${p_height/2}" rpy="0 0 0" />
+                <inertia ixx="${1/12*m*(p_height*p_height + p_width*p_width)}" ixy="0" ixz="0"
+                    iyy="${1/12*m*(p_length*p_length + p_height*p_height)}" iyz="0"
+                    izz="${1/12*m*(p_width*p_width + p_length*p_length)}" />
+            </inertial>
+
+            <collision>
+                <!-- box geometry -->
+                <geometry>
+                    <box size="${p_length} ${p_width} ${p_height}" />
+                </geometry>
+                <origin xyz="0 0 ${p_height/2}" rpy="0 0 0" />
+            </collision>
+        </link>
+    </xacro:macro>
+
+
+    <!-- INICIO ROBOT -->
+    <link name="base_link">
+        <!-- ... -->
+    </link>
+
+    <xacro:arm_macro p_name="armBase_link"
+        p_length="${bL}"
+        p_width="${bL}"
+        p_height="${bH}"
+        p_offset="0" />
+
+
+    <joint name="base_armBase_joint" type="fixed">
+        <parent link="base_link" />
+        <child link="armBase_link" />
+        <!--Crea
+        offsets the child con respecto a parent -->
+        <origin xyz="0 0 ${bH/2}" rpy="0 0 0" />
+    </joint>
+
+    <xacro:arm_macro p_name="arm1_link"
+        p_length="${armLxy}"
+        p_width="${armLxy}"
+        p_height="${armL1z}"
+        p_offset="${armL1z/2}" />
+
+    <joint name="armBase_arm1_joint" type="fixed">
+        <parent link="armBase_link" />
+        <child link="arm1_link" />
+        <!--Crea
+        offsets the child con respecto a parent -->
+        <origin xyz="0 0 ${bH/2}" rpy="0 0 0" />
+    </joint>
+
+    <xacro:arm_macro p_name="arm2_link"
+        p_length="${armLxy}"
+        p_width="${armLxy}"
+        p_height="${armLz}"
+        p_offset="${armLz*0.42}" />
+
+
+    <joint name="arm1_arm2_joint" type="revolute">
+        <parent link="arm1_link" />
+        <child link="arm2_link" />
+        <origin xyz="0 ${armLxy} ${armJz}" rpy="0 0 0" />
+        <axis xyz="0 1 0" />
+        <limit effort="1" lower="-1.57" upper="1.57" velocity="1" />
+        <dynamics damping="0.1" friction="0.1" />
+    </joint>
+
+    <xacro:arm_macro p_name="arm3_link"
+        p_length="${armLxy}"
+        p_width="${armLxy}"
+        p_height="${armLz}"
+        p_offset="${armLz*0.42}" />
+
+    <joint name="arm2_arm3_joint" type="revolute">
+        <parent link="arm2_link" />
+        <child link="arm3_link" />
+        <origin xyz="0 ${-armLxy} ${armJz}" rpy="0 0 0" />
+        <axis xyz="0 1 0" />
+        <limit effort="1" lower="-1.57" upper="1.57" velocity="1" />
+        <dynamics damping="0.1" friction="0.1" />
+    </joint>
+
+    <xacro:arm_macro p_name="arm4_link"
+        p_length="${armLxy}"
+        p_width="${armLxy}"
+        p_height="${armLz}"
+        p_offset="${armLz*0.42}" />
+
+    <joint name="arm3_arm4_joint" type="revolute">
+        <parent link="arm3_link" />
+        <child link="arm4_link" />
+        <origin xyz="0 ${armLxy} ${armJz}" rpy="0 0 0" />
+        <axis xyz="0 1 0" />
+        <limit effort="1" lower="-1.57" upper="1.57" velocity="1" />
+        <dynamics damping="0.1" friction="0.1" />
+    </joint>
+
+
+    <link name="tool_link">
+        <visual>
+            <!-- mesh -->
+            <geometry>
+                <mesh filename="package://modelrobot_pkg_seb/model/tool.stl" scale="0.001 0.001 0.001" />
+            </geometry>
+            <origin xyz="0 0 ${offset_tool}" rpy="0 0 0" />
+
+            <material name="gray">
+                <color rgba="0.5 0.5 0.5 1" />
+            </material>
+
+        </visual>
+
+        <inertial>
+            <mass value="${m}" />
+            <origin xyz="0 0 ${offset_tool}" rpy="0 0 0" />
+            <inertia ixx="${1/12*m*(40/1000*40/1000 + 25/1000*25/1000)}" ixy="0" ixz="0"
+                iyy="${1/12*m*(25/1000*25/1000 + 40/1000*40/1000)}" iyz="0"
+                izz="${1/12*m*(25/1000*25/1000 + 25/1000*25/1000)}" />
+        </inertial>
+
+        <collision>
+            <!-- mesh -->
+            <geometry>
+                <mesh filename="package://modelrobot_pkg_seb/model/tool.stl" scale="0.001 0.001 0.001"/>
+            </geometry>
+            <origin xyz="0 0 0" rpy="0 0 0" />
+        </collision>
+    </link>
+
+
+    <joint name="arm4_tool_joint" type="revolute">
+        <parent link="arm4_link" />
+        <child link="tool_link" />
+        <origin xyz="0 ${armLxy/2} ${armJz}" rpy="0 0 0" />
+        <axis xyz="0 1 0" />
+        <limit effort="1" lower="-1.57" upper="1.57" velocity="1" />
+        <dynamics damping="0.1" friction="0.1" />
+    </joint>
+
+
+</robot>

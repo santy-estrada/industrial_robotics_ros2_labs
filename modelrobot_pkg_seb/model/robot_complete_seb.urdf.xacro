@@ -1,0 +1,16 @@
+<?xml version='1.0'?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="robot_complete_seb">
+
+    <xacro:include filename="part_car_seb.urdf.xacro" />
+    <xacro:include filename="part_arm_seb.urdf.xacro" />
+
+
+    <!-- Connect arm to car -->
+    <joint name="car_to_arm_joint" type="fixed">
+        <parent link="chassis_link" />
+        <child link="armBase_link" />
+        <origin xyz="${blx/2} 0 ${blz}" rpy="0 0 0" />
+    </joint>
+
+
+</robot>

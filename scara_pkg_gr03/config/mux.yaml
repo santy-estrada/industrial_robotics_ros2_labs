@@ -1,0 +1,21 @@
+twist_mux:
+  ros__parameters:
+    topics:
+      inv:
+        name: inverse_kinematics
+        topic: /inv_kin
+        timeout: 0.5
+        priority: 10
+
+      conf:
+        name: configuration
+        topic: /config
+        timeout: 2.0
+        priority: 20
+
+    locks:
+      e_stop:
+        name: e_stop
+        topic: /emergency_stop
+        timeout: 0.0   # 0.0 = lock stays active until explicitly cleared
+        priority: 255  # higher than any other topic

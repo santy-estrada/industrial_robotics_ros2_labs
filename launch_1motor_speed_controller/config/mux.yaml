@@ -1,0 +1,15 @@
+twist_mux:
+  ros__parameters:
+    topics:
+      key:
+        name: keyboard
+        topic: /cmd_vel
+        timeout: 0.5
+        priority: 50
+
+    locks:
+      e_stop:
+        name: e_stop
+        topic: /emergency_stop
+        timeout: 0.0   # 0.0 = lock stays active until explicitly cleared
+        priority: 255  # higher than any other topic
