@@ -58,8 +58,8 @@ class ScaraInverseKinematics(Node):
 
         for theta2 in theta2_opt:
             th1 = None
-            if abs(theta2) > 120:
-                self.get_logger().warn('Position out of reach: |theta2| > 120 deg')
+            if abs(math.degrees(theta2)) > 110:
+                self.get_logger().warn(f'Position out of reach: |theta2| > 120 deg ({math.degrees(theta2):.2f} deg)')
                 theta1_opt.append(None)
                 continue
 
@@ -74,10 +74,10 @@ class ScaraInverseKinematics(Node):
 
             mat_inv = np.linalg.inv(mat)
             sol = mat_inv @ vec
-            th1 = math.atan(sol[1]/sol[0])
+            th1 = math.atan2(sol[1], sol[0])
 
-            if abs(th1) > 90:
-                self.get_logger().warn('Position out of reach: |theta1| > 90 deg')
+            if abs(math.degrees(th1)) > 85:
+                self.get_logger().warn(f'Position out of reach: |theta1| > 90 deg ({math.degrees(th1):.2f} deg)')
                 th1 = None
 
             theta1_opt.append(th1)

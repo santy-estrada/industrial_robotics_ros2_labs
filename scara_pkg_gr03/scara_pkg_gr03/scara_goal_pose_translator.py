@@ -11,10 +11,9 @@ class GoalPoseTranslator(Node):
 
         self.x_des = 0.0
         self.y_des = 0.0
-        self.z_des = 0.0
         
         # Publisher
-        self.end_effector_pub = self.create_publisher(Twist, 'desired_pose', 10)
+        self.end_effector_pub = self.create_publisher(Twist, 'desired_pos', 10)
        
         # QoS para la suscripción
         qos = QoSProfile(
@@ -34,10 +33,9 @@ class GoalPoseTranslator(Node):
         # Guardar valores
         self.x_des = msg.pose.position.x
         self.y_des = msg.pose.position.y
-        self.z_des = msg.pose.position.z
 
         self.get_logger().info(
-            f"Received (x,y,z): ({self.x_des:.2f}, {self.y_des:.2f}, {self.z_des:.2f})"
+            f"Received (x,y): ({self.x_des:.2f}, {self.y_des:.2f})"
         )
 
         # Publicar ya escalado
@@ -47,17 +45,17 @@ class GoalPoseTranslator(Node):
         # Escalar
         x_des_s = self.x_des * self.scale
         y_des_s = -self.y_des * self.scale
-        z_des_s = self.z_des * self.scale
         
         self.get_logger().info(
-            f"Scaled (x,y,z): ({x_des_s:.2f}, {y_des_s:.2f}, {z_des_s:.2f})"
+            f"Scaled (x,y): ({x_des_s:.2f}, {y_des_s:.2f})"
         )
         
         # Publicar en Twist
         point_msg = Twist()
         point_msg.linear.x = x_des_s
         point_msg.linear.y = y_des_s
-        point_msg.linear.z = z_des_s
+        point_msg.linear.z = 20.0 #z_des_s  # Fixed height for the SCARA robot
+        point_msg.angular.x = 0.0
         self.end_effector_pub.publish(point_msg)
 
 

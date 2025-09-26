@@ -35,7 +35,7 @@ class ScaraJointStatePublisher(Node):
         self.endEffector_y = 0.0
         self.endEffector_z = 0.0
    
-        self.dh_matrix = np.array([[0, 0, 0.082, 0], [0.16, 0, 0, 0], [0.11, math.pi, 0.018, 0], [0, 0, 0.049, 0]], dtype=float) # [a, alpha, Sj, thetaj]    
+        self.dh_matrix = np.array([[0, 0, 0.082, 0], [0.16, 0, 0, 0], [0.11, math.pi, 0.018, 0], [0, 0, 0.0, 0]], dtype=float) # [a, alpha, Sj, thetaj]    
 
         # ---- Pub/Sub ----
         qos = QoSProfile(depth=10)
@@ -104,7 +104,7 @@ class ScaraJointStatePublisher(Node):
         # Linear position in mm, we convert it to m
         self.pj1 = math.radians(msg.linear.x)  # Joint 1 position (rad)
         self.pj2 = math.radians(msg.linear.y)  # Joint 2 position (rad)
-        self.pj3 = msg.linear.z / 1000.0       # Joint 3 position (m)
+        self.pj3 = (msg.linear.z + 49) / 1000.0       # Joint 3 position (m)
         self.vj1 = math.radians(msg.angular.x) # Joint 1 velocity (rad/s)
         self.vj2 = math.radians(msg.angular.y) # Joint 2 velocity (rad/s)
         # Joint 3 velocity is assumed always 0 (prismatic joint)       

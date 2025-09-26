@@ -5,7 +5,7 @@
     <!--Propiedades-->  
     <xacro:property name="rescale" value="${1000}" />
 
-    <xacro:property name="r1" value="1.60" />
+    <xacro:property name="r1" value="${1.60/10}" />
 
     <xacro:property name="base_x" value="${200/rescale}" />
     <xacro:property name="base_y" value="${139/rescale}" />
