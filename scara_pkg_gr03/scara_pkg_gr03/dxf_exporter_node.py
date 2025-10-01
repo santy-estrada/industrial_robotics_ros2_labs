@@ -20,7 +20,7 @@ class DXFParserNode(Node):
     # Parameters
         self.declare_parameter(
             'dxf_file',
-            'scara_pkg_gr03/model/prueba_7_8.dxf'
+            'scara_pkg_gr03/dxf/prueba_7_8.dxf'
         )
         dxf_path = self.get_parameter('dxf_file').get_parameter_value().string_value
         self.get_logger().info(f"Reading DXF file: {dxf_path}")

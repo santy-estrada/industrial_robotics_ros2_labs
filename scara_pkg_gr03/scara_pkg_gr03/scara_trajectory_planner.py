@@ -151,10 +151,10 @@ class ScaraTrajectoryPlanner(Node):
 
             if not self.in_transition:
                 # Durante toda la figura: z = 15
-                tw.linear.z = -49.0
+                tw.linear.z = -10.0
             else:
                 # En transiciones: sube la herramienta
-                tw.linear.z = 0.0
+                tw.linear.z = 15.0
 
             self.publisher.publish(tw) #publica pose objetivo de la herramienta
 
