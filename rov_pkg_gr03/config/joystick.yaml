@@ -1,0 +1,29 @@
+teleop_node:
+  ros__parameters:
+    # --- Configuración General ---
+    deadzone: 0.05
+    enable_button: 5  # Botón LB (Left Bumper) como "hombre muerto"
+    require_enable_button: true
+
+    # --- Mapeo de Ejes ---
+
+    # Palanca Izquierda (Arriba/Abajo) -> Avance/Retroceso (Surge)
+    # Publica en: linear.x
+    axis_linear:
+      x: 1
+    scale_linear:
+      x: -1.0  # Ajusta a -1.0 si 'arriba' es negativo
+
+    # Palanca Derecha (Arriba/Abajo) -> Ascenso/Descenso (Heave)
+    # Publica en: linear.z
+    axis_linear:
+      z: 3
+    scale_linear:
+      z: -1.0 # Ajusta a -1.0 si 'arriba' es negativo
+
+    # Palanca Izquierda (Izq/Der) -> Giro (Yaw)
+    # Publica en: angular.z
+    axis_angular:
+      yaw: 0 
+    scale_angular:
+      yaw: -1.0 # Generalmente 'izquierda' es positivo, lo invertimos

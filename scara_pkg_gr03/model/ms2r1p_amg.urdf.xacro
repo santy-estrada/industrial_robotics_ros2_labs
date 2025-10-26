@@ -1,0 +1,171 @@
+<?xml version='1.0'?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="ms2r">
+
+
+    <!--Propiedades-->  
+    <xacro:property name="rescale" value="${1000}" />
+
+    <xacro:property name="r1" value="${1.60/10}" />
+
+    <xacro:property name="base_x" value="${200/rescale}" />
+    <xacro:property name="base_y" value="${139/rescale}" />
+    <xacro:property name="base_z" value="${86.5/rescale}" />
+    <xacro:property name="off_edge_base_arm1" value="${40.4/rescale}" />
+
+    <xacro:property name="arm_1_x" value="${280.15/rescale}" />
+    <xacro:property name="arm_1_y" value="${76/rescale}" />
+    <xacro:property name="arm_1_z" value="${71/rescale}" />
+    <xacro:property name="off_edge_center_arm1" value="${80.15/rescale}" />
+
+    <xacro:property name="arm_2_x" value="${203/rescale}" />
+    <xacro:property name="arm_2_y" value="${58/rescale}" />
+    <xacro:property name="arm_2_z" value="${22.7/rescale}" />
+    <xacro:property name="off_edge_center_arm2" value="${25/rescale}" />
+    
+
+    <xacro:property name="prism_len" value="${130/rescale}" />
+    <xacro:property name="prism_r" value="${5/rescale}" />
+    <xacro:property name="off_edge_prism_arm2" value="${23/rescale}" />
+
+    <xacro:property name="upper_limit_angular_arm_1" value="${pi/2}" />
+    <xacro:property name="lower_limit_angular_arm_1" value="${pi/2}" />
+
+    <xacro:property name="upper_limit_angular_arm_2" value="${2*pi/3}" />
+    <xacro:property name="lower_limit_angular_arm_2" value="${2*pi/3}" />
+
+    <xacro:property name="lower_limit_linear" value="${-0.06}" />
+    <xacro:property name="upper_limit_linear" value="${0.07}" />
+
+    <xacro:property name="piece_scale" value="${0.001}" />
+
+
+     <!--Macros-->
+
+    <xacro:macro name="arm_macro" params="p_name p_x p_y p_length_z offset mat_name r g b a">
+        <link name="${p_name}">
+            <visual>
+                <geometry>
+                    <box size="${p_x} ${p_y} ${p_length_z}"/>
+                </geometry>
+                <material name="${mat_name}">
+                    <color rgba="${r} ${g} ${b} ${a}"/> <!-- R G B A -->
+                </material>
+                <origin xyz="${p_x/2-offset} 0 0" rpy="0 0 0"/>
+            </visual>
+
+            <inertial>
+                <mass value="1"/>
+                <origin xyz="0 0 0" rpy="0 0 0"/>
+                <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+            </inertial>
+
+            <collision>
+                <geometry>
+                    <box size="${p_x} ${p_y} ${p_length_z}"/>
+                </geometry>
+                <origin xyz="${p_x/2} 0 0" rpy="0 0 0"/>
+            </collision>
+        </link>
+    </xacro:macro>
+
+<!--Estructura robot-->
+        <!--Estructura robot-->
+    <link name="base_link">
+        <!-- ... -->
+    </link>
+
+    <joint name="base_base_1_joint" type="fixed">
+        <parent link="base_link"/>
+        <child link="base_1_link"/>
+        <origin xyz="-${base_x/2-off_edge_base_arm1} 0 ${base_z/2}" rpy="0 0 0"/>
+    </joint>
+    
+   <link name="base_1_link">
+        <visual>
+            <origin xyz="0 0 0" rpy="0 0 0"/>
+            <geometry>
+            <box size="${base_x} ${base_y} ${base_z}"/>
+            </geometry>
+            <material name="blue">
+                <color rgba="0 0 1 0.8"/> <!-- R G B A -->
+            </material>
+        </visual>
+    </link>
+
+
+    <joint name="base_to_arm1_joint" type="revolute">
+        <parent link="base_link"/>
+        <child link="arm_1_link"/>
+        <origin xyz="0 0 ${base_z+arm_1_z/2}" rpy="0 0 0"/>
+        <axis xyz="0 0 1"/> <!-- rotación vertical -->
+        <limit effort="1" lower="-${lower_limit_angular_arm_1}" upper="${upper_limit_angular_arm_1}" velocity="1"/>
+    </joint>
+
+    <xacro:arm_macro p_name = "arm_1_link" 
+                       p_x = "${arm_1_x}"
+                       p_y ="${arm_1_y}"
+                       p_length_z="${arm_1_z}" 
+                       offset = "${off_edge_center_arm1}"
+                       mat_name = "cian"
+                       r = "${0}"
+                       g = "${1}"
+                       b = "${1}"
+                       a = "${0.8}"/>
+
+
+    <joint name="arm_1_arm_2_joint" type="revolute">
+        <parent link="arm_1_link"/>
+        <child link="arm_2_link"/>
+        <origin xyz="${r1} 0 -${arm_1_z/2+arm_2_z/2}" rpy="0 0 0"/>
+        <axis xyz="0 0 1"/>
+        <limit effort="1" lower="-${lower_limit_angular_arm_2}" upper="${upper_limit_angular_arm_2}" velocity="1"/>
+        <dynamics damping="1" friction="1"/> 
+    </joint>
+
+    <xacro:arm_macro p_name = "arm_2_link" 
+                    p_x = "${arm_2_x}"
+                    p_y ="${arm_2_y}"
+                    p_length_z="${arm_2_z}"
+                    offset = "${off_edge_center_arm2}"
+                    mat_name = "green"
+                    r = "0"
+                    g = "1"
+                    b = "0"
+                    a = "0.8"/>
+
+
+    <joint name="arm_2_prismatic_joint" type="prismatic">
+        <parent link="arm_2_link"/>
+        <child link="prismatic_link"/>
+        <origin xyz="${arm_2_x-off_edge_center_arm2-prism_r-off_edge_prism_arm2} 0 ${-0.006}" rpy="0 0 0"/>
+        <axis xyz="0 0 -1"/>
+        <limit effort="1" lower="${lower_limit_linear}" upper="${upper_limit_linear}" velocity="1"/>
+        <dynamics damping="1" friction="1"/> 
+    </joint>
+
+    <link name="prismatic_link">
+        <visual>
+            <geometry>
+                <cylinder radius="${prism_r}" length="${prism_len}"/>
+                
+            </geometry>
+            <material name="gray">
+                <color rgba="0.5 0.5 0.5 0.8"/> <!-- R G B A -->
+            </material>
+            <origin xyz="0 0 ${prism_len/2}" rpy="0 0 0"/>
+        </visual>
+        <inertial>
+                <mass value="1"/>
+                <origin xyz="0 0 ${prism_len/2}" rpy="0 0 0"/>
+                <inertia ixx="1" ixy="0" ixz="0" iyy="1" iyz="0" izz="1"/>
+            </inertial>
+
+            <collision>
+                <geometry>
+                   <cylinder radius="${prism_r}" length="${prism_len}"/>
+                </geometry>
+                <origin xyz="0 0 ${prism_len/2}" rpy="0 0 0"/>
+            </collision>
+    </link>
+
+</robot>

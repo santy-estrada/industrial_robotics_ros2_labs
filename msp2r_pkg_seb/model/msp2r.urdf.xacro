@@ -1,0 +1,139 @@
+<?xml version='1.0'?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="robot_arm_seb">
+
+    <!-- PROPIEDADES -->
+    <!-- Brazo -->
+    <xacro:property name="arm1Ly" value="${0.2}" />
+    <xacro:property name="arm2Ly" value="${0.2}" />
+    <xacro:property name="armLxz" value="${0.02}" />
+
+    <xacro:property name="m" value="1" />
+
+    <!-- Base -->
+    <xacro:property name="br" value="${0.05}" />
+    <xacro:property name="bH" value="${0.1}" />
+
+
+    <!-- MACROS / FUNCIONES -->
+    <!--Boxes: x -> l; y -> w; z -> h -->
+    <xacro:macro name="box_macro" params="p_name p_length p_width p_height p_offset p_matname p_r p_g p_b">
+        <link name="${p_name}">
+            <visual>
+                <!-- box geometry -->
+                <geometry>
+                    <box size="${p_length} ${p_width} ${p_height}" />
+                </geometry>
+                <!-- Esto mueve la caja desde el centro, no el origen con respecto a la caja-->
+                <origin xyz="0 ${p_offset} 0" rpy="0 0 0" />
+
+                <material name="${p_matname}">
+                    <color rgba="${p_r} ${p_g} ${p_b} 1" />
+                </material>
+
+            </visual>
+
+            <inertial>
+                <mass value="${m}" />
+                <origin xyz="0 0 ${p_height/2}" rpy="0 0 0" />
+                <inertia ixx="${1/12*m*(p_height*p_height + p_width*p_width)}" ixy="0" ixz="0"
+                    iyy="${1/12*m*(p_length*p_length + p_height*p_height)}" iyz="0"
+                    izz="${1/12*m*(p_width*p_width + p_length*p_length)}" />
+            </inertial>
+
+            <collision>
+                <!-- box geometry -->
+                <geometry>
+                    <box size="${p_length} ${p_width} ${p_height}" />
+                </geometry>
+                <origin xyz="0 0 ${p_height/2}" rpy="0 0 0" />
+            </collision>
+        </link>
+    </xacro:macro>
+
+    <!-- CYLINDER: -->
+     <xacro:macro name="cylinder_macro" params="p_name p_radius p_length">
+        <link name="${p_name}">
+            <visual>
+                <!-- cylinder geometry -->
+                <geometry>
+                    <cylinder radius="${p_radius}" length="${p_length}" />
+                </geometry>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+            </visual>
+
+            <inertial>
+                <mass value="${m}" />
+                <origin xyz="0 0 0" rpy="0 0 0" />
+                <inertia ixx="${1/12*m*(p_length*p_length + 3*p_radius*p_radius)}" ixy="0" ixz="0"
+                    iyy="${1/12*m*(p_length*p_length + 3*p_radius*p_radius)}" iyz="0"
+                    izz="${1/2*m*p_radius*p_radius}" />
+            </inertial>
+
+            <collision>
+                <!-- cylinder geometry -->
+                <geometry>
+                    <cylinder radius="${p_radius}" length="${p_length}" />
+                </geometry>
+                <origin xyz="0 0 0" rpy="0 0 0" />
+            </collision>
+        </link>
+    </xacro:macro>
+
+    <!-- INICIO ROBOT -->
+    <link name="base_link">
+        <!-- ... -->
+    </link>
+
+    <xacro:cylinder_macro p_name="armBase_link"
+        p_radius="${br}"
+        p_length="${bH}" />
+
+
+    <joint name="base_armBase_joint" type="fixed">
+        <parent link="base_link" />
+        <child link="armBase_link" />
+        <!--Crea
+        offsets the child con respecto a parent -->
+        <origin xyz="0 0 ${bH/2}" rpy="0 0 0" />
+    </joint>
+
+    <xacro:box_macro p_name="arm1_link"
+        p_length="${armLxz}"
+        p_width="${arm1Ly}"
+        p_height="${armLxz}"
+        p_offset="${arm1Ly/2}"
+        p_matname="blue"
+        p_r="${0.5}"
+        p_g="${0.5}"
+        p_b="${0.5}" />
+
+    <joint name="armBase_arm1_joint" type="revolute">
+        <parent link="armBase_link" />
+        <child link="arm1_link" />
+        <origin xyz="0 0 ${bH/2}" rpy="0 0 0" />
+        <axis xyz="0 0 1" />
+        <limit effort="1" lower="-1.57" upper="1.57" velocity="1" />
+        <dynamics damping="0.1" friction="0.1" />
+    </joint>
+
+    <xacro:box_macro p_name="arm2_link"
+        p_length="${armLxz}"
+        p_width="${arm2Ly}"
+        p_height="${armLxz}"
+        p_offset="${arm2Ly/2}"
+        p_matname="green"
+        p_r="${0.1}"
+        p_g="${1}"
+        p_b="${0.1}" />
+
+    <joint name="arm1_arm2_joint" type="revolute">
+        <parent link="arm1_link" />
+        <child link="arm2_link" />
+        <origin xyz="0 ${arm1Ly} 0" rpy="0 0 0" />
+        <axis xyz="0 0 1" />
+        <limit effort="1" lower="-1.57" upper="1.57" velocity="1" />
+        <dynamics damping="0.1" friction="0.1" />
+    </joint>
+
+
+</robot>
