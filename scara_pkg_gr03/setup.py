@@ -30,8 +30,10 @@ setup(
             'scara_forward_kinematics= scara_pkg_gr03.scara_forward_kinematics:main',
             'scara_inverse_kinematics= scara_pkg_gr03.scara_inverse_kinematics:main',
             'scara_trajectory_planner= scara_pkg_gr03.scara_trajectory_planner:main',
+            'scara_trajectory_planner_v2= scara_pkg_gr03.scara_trajectory_planner_v2:main',
             'scara_goal_pose_translator= scara_pkg_gr03.scara_goal_pose_translator:main',
             'scara_dxf_exporter_node= scara_pkg_gr03.dxf_exporter_node:main',
+            'dxf_exporter_node_v2= scara_pkg_gr03.dxf_exporter_node_v2:main',
         ],
     },
 )

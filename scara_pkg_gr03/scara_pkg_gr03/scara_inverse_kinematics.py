@@ -12,7 +12,11 @@ class ScaraInverseKinematics(Node):
         # ---- Parameters (declare + get) ----
         self.declare_parameter('publish_rate', 60.0)      # Hz
 
+        # Add parameter to select elbow up/down
+        self.declare_parameter('elbow_up', False)  # True: elbow up, False: elbow down
+
         self.rate_hz = float(self.get_parameter('publish_rate').value)
+        self.elbow_up = bool(self.get_parameter('elbow_up').value)
         
         # ---- State ----
         #Parameters of the robot
@@ -52,10 +56,11 @@ class ScaraInverseKinematics(Node):
             self.get_logger().warn(f'Position out of reach: D = {D}')
             return
         
-        #Two options for theta2: elbow up and elbow down
-        theta2_opt = [math.acos(D), -math.acos(D)]
-        theta1_opt = []
+        # Choose theta2 based on elbow_up parameter
+        theta2_opt = [math.acos(D), -math.acos(D)]  # [elbow up, elbow down]
+        chosen_idx = 0 if self.elbow_up else 1
 
+        theta1_opt = []
         for theta2 in theta2_opt:
             th1 = None
             if abs(math.degrees(theta2)) > 120:
@@ -76,24 +81,22 @@ class ScaraInverseKinematics(Node):
             sol = mat_inv @ vec
             th1 = math.atan2(sol[1], sol[0])
 
-            if abs(math.degrees(th1)) >= 80:
-                self.get_logger().warn(f'Position out of reach: |theta1| > 80 deg ({math.degrees(th1):.2f} deg)')
+            if abs(math.degrees(th1)) > 85:
+                # self.get_logger().warn(f'Position out of reach: |theta1| > 90 deg ({math.degrees(th1):.2f} deg)')
                 th1 = None
 
             theta1_opt.append(th1)
 
-        # Select the first valid (th1, th2) pair
+        # Select the solution based on elbow_up parameter
         found_valid = False
         prismatic = self.delta3 - self.pz
-        
-        for idx, th1 in enumerate(theta1_opt):
-            th2 = theta2_opt[idx]
-            if th1 is not None and th2 is not None and abs(prismatic) <= 14.0:
-                self.pj1 = th1
-                self.pj2 = th2
-                self.pj3 = prismatic  # Extension of prismatic joint (m)
-                found_valid = True
-                break
+        th1 = theta1_opt[chosen_idx]
+        th2 = theta2_opt[chosen_idx]
+        if th1 is not None and th2 is not None and abs(prismatic) <= 14.0:
+            self.pj1 = th1
+            self.pj2 = th2
+            self.pj3 = prismatic  # Extension of prismatic joint (m)
+            found_valid = True
 
         if not found_valid:
             self.get_logger().warn('No valid solution for joint angles; keeping previous values.')

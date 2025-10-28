@@ -39,7 +39,7 @@ class ScaraJointStatePublisher(Node):
 
         # ---- Pub/Sub ----
         qos = QoSProfile(depth=10)
-        self.create_subscription(Twist, '/scara_measurements', self._scara_configuration, qos)      #Connect to scara_conf if there is no pico
+        self.create_subscription(Twist, '/scara_measurements', self._scara_configuration, qos)      #Connect to scara_conf if there is no pico; else scara_measurements
         self.publisher_joint_states = self.create_publisher(JointState, 'joint_states', qos)
         self.publisher_end_effector = self.create_publisher(Twist, 'end_effector', qos)
         

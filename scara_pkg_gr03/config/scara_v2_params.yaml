@@ -1,0 +1,115 @@
+# Configuration file for SCARA V2 nodes
+# ======================================
+# This file contains parameters for the new trajectory planner and DXF exporter nodes.
+#
+# Usage:
+#   ros2 run scara_pkg_gr03 scara_trajectory_planner_v2 --ros-args --params-file <path_to_this_file>
+#   ros2 run scara_pkg_gr03 dxf_exporter_node_v2 --ros-args --params-file <path_to_this_file>
+
+# Trajectory Planner V2 Parameters
+scara_trajectory_planner_v2:
+  ros__parameters:
+    # Interpolation type: "linear", "cubic", or "quintic"
+    # - linear: Simple straight-line interpolation (fastest, least smooth)
+    # - cubic: Smooth interpolation with zero initial/final velocities
+    # - quintic: Smoothest interpolation with zero initial/final velocities and accelerations
+    interpolation_type: "linear"
+    
+    # Prismatic joint heights (mm)
+    # safe_height: Z position for transitions between figures (tool is raised)
+    # prismatic_down_height: Z position during path execution (tool is lowered)
+    safe_height: 10.0
+    prismatic_down_height: -5.0
+    
+    # Timing parameters (seconds)
+    # time_work_segment: Duration for interpolating each work segment (line/arc)
+    # time_segment_close: Duration for closing a figure (returning to start point)
+    # time_prismatic_up: Duration for raising the prismatic joint
+    # time_prismatic_down: Duration for lowering the prismatic joint
+    # time_xy_transition: Duration for XY movement between different figures
+    time_work_segment: 10.0
+    time_segment_close: 2.0
+    time_prismatic_up: 0.5
+    time_prismatic_down: 0.5
+    time_xy_transition: 2.0
+
+    # Publishing parameters
+    # publish_rate: Rate at which waypoints are published (Hz)
+    # min_distance_mm: Minimum distance change (in mm) to publish a waypoint
+    #                  This filters out redundant points that are too close together
+    publish_rate: 60.0
+    min_distance_mm: 0.1
+    
+    # Home position parameters (mm)
+    # home_x: X coordinate for home position
+    # home_y: Y coordinate for home position
+    # Robot will move to this position with tool up (safe_height) at the end
+    home_x: 303.0
+    home_y: 0.0
+    
+    # Initial positioning
+    # initial_position_repeats: Number of times to send the first position
+    #                           This ensures the robot reaches the starting position
+    initial_position_repeats: 300
+
+# DXF Exporter V2 Parameters
+dxf_exporter_node_v2:
+  ros__parameters:
+    # DXF file to parse
+    # Can be either:
+    # 1. Absolute path: "/home/user/path/to/file.dxf"
+    # 2. Relative to package share: "filename.dxf" (looks in install/share/scara_pkg_gr03/dxf/)
+    dxf_file: "Circulo_r5.dxf"
+    
+    # Workspace centering parameters (mm)
+    # The DXF geometric center will be moved to this location in the robot workspace
+    # workspace_center_x: Target X coordinate for the piece center
+    # workspace_center_y: Target Y coordinate for the piece center
+    workspace_center_x: 250.0
+    workspace_center_y: -40.0
+    
+    # Scale factor
+    # 1.0 = 100% (original size)
+    # 0.5 = 50% (half size)
+    # 2.0 = 200% (double size)
+    # Scaling is applied relative to the geometric center before translation
+    scale: 2.0
+
+# Example configurations for different use cases:
+# ================================================
+
+# Fast execution (shorter times, lower quality):
+# scara_trajectory_planner_v2:
+#   ros__parameters:
+#     interpolation_type: "linear"
+#     time_work_segment: 5.0
+#     time_segment_close: 2.0
+#     time_xy_transition: 3.0
+#     publish_rate: 10.0
+#     min_distance_mm: 2.0
+
+# High quality (longer times, smoother motion):
+# scara_trajectory_planner_v2:
+#   ros__parameters:
+#     interpolation_type: "quintic"
+#     time_work_segment: 30.0
+#     time_segment_close: 30.0
+#     time_xy_transition: 25.0
+#     publish_rate: 50.0
+#     min_distance_mm: 0.5
+
+# Small piece in corner of workspace:
+# dxf_exporter_node_v2:
+#   ros__parameters:
+#     dxf_file: "small_part.dxf"
+#     workspace_center_x: 150.0
+#     workspace_center_y: 150.0
+#     scale: 0.5
+
+# Large piece at workspace center:
+# dxf_exporter_node_v2:
+#   ros__parameters:
+#     dxf_file: "large_part.dxf"
+#     workspace_center_x: 200.0
+#     workspace_center_y: 0.0
+#     scale: 1.5
