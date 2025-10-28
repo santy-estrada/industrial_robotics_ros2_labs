@@ -34,6 +34,11 @@ setup(
             'scara_goal_pose_translator= scara_pkg_gr03.scara_goal_pose_translator:main',
             'scara_dxf_exporter_node= scara_pkg_gr03.dxf_exporter_node:main',
             'dxf_exporter_node_v2= scara_pkg_gr03.dxf_exporter_node_v2:main',
+            # Offline trajectory generation system
+            'offline_trajectory_generator= scara_pkg_gr03.offline_trajectory_generator:main',
+            'offline_inverse_kinematics= scara_pkg_gr03.offline_inverse_kinematics:main',
+            'joint_trajectory_interpolator= scara_pkg_gr03.joint_trajectory_interpolator:main',
+            'trajectory_executor= scara_pkg_gr03.trajectory_executor:main',
         ],
     },
 )

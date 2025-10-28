@@ -1,0 +1,43 @@
+# Offline Trajectory Generation Parameters
+# ==========================================
+
+offline_trajectory_generator:
+  ros__parameters:
+    # Interpolation type for waypoint generation: "linear", "cubic", or "quintic"
+    interpolation_type: "cubic"
+    
+    # Waypoint density (waypoints per second)
+    # This replaces publish_rate from online system
+    # num_points = time * waypoint_density
+    waypoint_density: 5.0
+    
+    # Prismatic joint heights (mm)
+    safe_height: 5.0
+    prismatic_down_height: -5.0
+    
+    # Timing parameters (seconds)
+    time_work_segment: 5.0
+    time_segment_close: 5.0
+    time_prismatic_up: 2.0
+    time_prismatic_down: 2.0
+    time_xy_transition: 2.0
+    
+    # Home position (mm)
+    home_x: 303.0
+    home_y: 0.0
+    
+    # Initial positioning
+    initial_position_repeats: 5
+
+joint_trajectory_interpolator:
+  ros__parameters:
+    # Interpolation type: "linear", "cubic", or "quintic"
+    interpolation_type: "cubic"
+    
+    # Minimum angle change (in degrees) to keep a waypoint
+    # Configurations with smaller angle changes will be filtered out
+    min_angle_deg: 0.1
+    
+    # Number of interpolation points between each pair of configurations
+    # Higher values create smoother but longer trajectories
+    points_per_segment: 20

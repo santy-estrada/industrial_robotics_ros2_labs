@@ -24,7 +24,7 @@ scara_forward_kinematics:
     #                - 50000: ~14 minutes at 60Hz (for longer trajectories)
     #                - 100000: ~28 minutes at 60Hz
     #                Note: Each pose uses ~100 bytes, so 10000 poses ≈ 1MB memory
-    max_path_size: 50000
+    max_path_size: 20000
     
     # min_distance_m: Minimum 3D distance (in meters) between consecutive poses
     #                 to add a new point to the path visualization
@@ -40,6 +40,14 @@ scara_inverse_kinematics:
     publish_rate: 60.0
     
     # Elbow configuration
+    # elbow_up: true  -> Uses "elbow up" solution (theta2 = acos(D))
+    # elbow_up: false -> Uses "elbow down" solution (theta2 = -acos(D))
+    elbow_up: false
+
+# Offline Inverse Kinematics Parameters
+offline_inverse_kinematics:
+  ros__parameters:
+    # Elbow configuration (same as online IK)
     # elbow_up: true  -> Uses "elbow up" solution (theta2 = acos(D))
     # elbow_up: false -> Uses "elbow down" solution (theta2 = -acos(D))
     elbow_up: false

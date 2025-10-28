@@ -1,0 +1,9 @@
+trajectory_executor:
+  ros__parameters:
+    # Publishing rate in Hz (how fast to send configurations to Pico)
+    # Common values: 10, 20, 50, 60
+    publish_rate_hz: 20.0
+    
+    # Whether to start execution immediately when trajectory is loaded
+    # Set to false if you want manual control over when to start
+    start_execution: true
