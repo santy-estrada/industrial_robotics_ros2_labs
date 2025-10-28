@@ -1,7 +1,8 @@
 import rclpy
 from rclpy.node import Node
 from sensor_msgs.msg import JointState
-from geometry_msgs.msg import Twist
+from geometry_msgs.msg import Twist, PoseStamped
+from nav_msgs.msg import Path
 from rclpy.qos import QoSProfile
 import math
 import numpy as np
@@ -16,12 +17,16 @@ class ScaraJointStatePublisher(Node):
         self.declare_parameter('joint3', 'arm_2_prismatic_joint')
 
         self.declare_parameter('publish_rate', 50.0)      # Hz
+        self.declare_parameter('max_path_size', 10000000)  # Max number of poses in path buffer
+        self.declare_parameter('min_distance_m', 0.0001)  # Minimum distance (0.1mm) to publish new pose
 
         self.joint1 = self.get_parameter('joint1').get_parameter_value().string_value
         self.joint2 = self.get_parameter('joint2').get_parameter_value().string_value
         self.joint3 = self.get_parameter('joint3').get_parameter_value().string_value
 
         self.rate_hz = float(self.get_parameter('publish_rate').value)
+        self.max_path_size = int(self.get_parameter('max_path_size').value)
+        self.min_distance_m = float(self.get_parameter('min_distance_m').value)
         
         # ---- State ----
         self.pj1 = 0.0
@@ -34,6 +39,9 @@ class ScaraJointStatePublisher(Node):
         self.endEffector_x = 0.0
         self.endEffector_y = 0.0
         self.endEffector_z = 0.0
+        
+        # Path tracking with distance filter
+        self.last_published_path_point = None  # (x, y, z) of last published point
    
         self.dh_matrix = np.array([[0, 0, 0.082, 0], [0.16, 0, 0, 0], [0.143, math.pi, 0.018, 0], [0, 0, 0.064, 0]], dtype=float) # [a, alpha, Sj, thetaj]    
 
@@ -43,13 +51,18 @@ class ScaraJointStatePublisher(Node):
         self.publisher_joint_states = self.create_publisher(JointState, 'joint_states', qos)
         self.publisher_end_effector = self.create_publisher(Twist, 'end_effector', qos)
         
+        # Publisher for actual path visualization in RViz
+        self.path_publisher = self.create_publisher(Path, 'end_effector_path', qos)
+        self.path_msg = Path()
+        self.path_msg.header.frame_id = 'base_link'
+        
         # ---- Timer ----
         self.last_time_joint_states = None
         self.dt_joint_states = 1.0 / self.rate_hz
         self.timer_joint_states = self.create_timer(self.dt_joint_states, self.publish_joint_states)
 
         self.last_time_end_effector = None
-        self.dt_end_effector = 2.0
+        self.dt_end_effector = 1.0 / self.rate_hz  # Use same rate as joint states
         self.timer_end_effector = self.create_timer(self.dt_end_effector, self.publish_end_effector)
         self.end_effector = Twist()
 
@@ -104,7 +117,7 @@ class ScaraJointStatePublisher(Node):
         # Linear position in mm, we convert it to m
         self.pj1 = math.radians(msg.linear.x)  # Joint 1 position (rad)
         self.pj2 = math.radians(msg.linear.y)  # Joint 2 position (rad)
-        self.pj3 = (msg.linear.z + 64) / 1000.0       # Joint 3 position (m)
+        self.pj3 = (msg.linear.z + 45) / 1000.0       # Joint 3 position (m)
         self.vj1 = math.radians(msg.angular.x) # Joint 1 velocity (rad/s)
         self.vj2 = math.radians(msg.angular.y) # Joint 2 velocity (rad/s)
         # Joint 3 velocity is assumed always 0 (prismatic joint)       
@@ -127,6 +140,48 @@ class ScaraJointStatePublisher(Node):
         tw.linear.y = self.endEffector_y
         tw.linear.z = self.endEffector_z
         self.publisher_end_effector.publish(tw)
+
+        # Apply 0.1mm distance filter before adding to path
+        should_publish = False
+        if self.last_published_path_point is None:
+            # Always publish first point
+            should_publish = True
+        else:
+            # Calculate distance from last published point
+            dx = self.endEffector_x - self.last_published_path_point[0]
+            dy = self.endEffector_y - self.last_published_path_point[1]
+            dz = self.endEffector_z - self.last_published_path_point[2]
+            distance = math.sqrt(dx**2 + dy**2 + dz**2)
+            
+            # Only publish if distance >= 0.1mm (0.0001m)
+            if distance >= self.min_distance_m:
+                should_publish = True
+        
+        if should_publish:
+            # Create PoseStamped message
+            pose = PoseStamped()
+            pose.header.stamp = now.to_msg()
+            pose.header.frame_id = self.path_msg.header.frame_id
+            
+            # Fill position
+            pose.pose.position.x = self.endEffector_x
+            pose.pose.position.y = -self.endEffector_y
+            pose.pose.position.z = self.endEffector_z
+            pose.pose.orientation.w = 1.0
+
+            # Add new pose to path
+            self.path_msg.poses.append(pose)
+
+            # Implement buffer size limit
+            if len(self.path_msg.poses) > self.max_path_size:
+                self.path_msg.poses.pop(0)
+
+            # Update last published point
+            self.last_published_path_point = (self.endEffector_x, self.endEffector_y, self.endEffector_z)
+
+            # Update path header timestamp and publish
+            self.path_msg.header.stamp = now.to_msg()
+            self.path_publisher.publish(self.path_msg)
 
 
     def publish_joint_states(self):

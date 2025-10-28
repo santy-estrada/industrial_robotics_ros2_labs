@@ -1,0 +1,87 @@
+# Configuration file for SCARA Kinematics Nodes
+# ===============================================
+# This file contains parameters for the forward and inverse kinematics nodes.
+#
+# Usage with scara_digital_twin_v2.launch.py:
+#   The launch file will automatically load these parameters for the kinematics nodes.
+
+# Forward Kinematics Parameters
+scara_forward_kinematics:
+  ros__parameters:
+    # Joint names (must match URDF)
+    joint1: 'base_to_arm1_joint'
+    joint2: 'arm_1_arm_2_joint'
+    joint3: 'arm_2_prismatic_joint'
+    
+    # Publishing rate for joint states (Hz)
+    publish_rate: 60.0
+    
+    # Path visualization parameters
+    # max_path_size: Maximum number of poses to keep in the path buffer
+    #                Recommended values:
+    #                - 5000: ~1-2 minutes at 60Hz (reasonable for most use cases)
+    #                - 10000: ~3 minutes at 60Hz
+    #                - 50000: ~14 minutes at 60Hz (for longer trajectories)
+    #                - 100000: ~28 minutes at 60Hz
+    #                Note: Each pose uses ~100 bytes, so 10000 poses ≈ 1MB memory
+    max_path_size: 50000
+    
+    # min_distance_m: Minimum 3D distance (in meters) between consecutive poses
+    #                 to add a new point to the path visualization
+    #                 0.0001m = 0.1mm - filters out tiny movements
+    #                 0.0005m = 0.5mm - less detail but fewer points
+    #                 0.001m = 1.0mm - good balance for most applications
+    min_distance_m: 0.0001  # 0.1mm filter
+
+# Inverse Kinematics Parameters
+scara_inverse_kinematics:
+  ros__parameters:
+    # Publishing rate for inverse kinematics (Hz)
+    publish_rate: 60.0
+    
+    # Elbow configuration
+    # elbow_up: true  -> Uses "elbow up" solution (theta2 = acos(D))
+    # elbow_up: false -> Uses "elbow down" solution (theta2 = -acos(D))
+    elbow_up: false
+
+# ================================================
+# Memory Usage Estimation:
+# ================================================
+# Each PoseStamped in the path uses approximately:
+# - Header: ~40 bytes
+# - Position (x,y,z): 24 bytes (3 x 8-byte doubles)
+# - Orientation (quaternion): 32 bytes (4 x 8-byte doubles)
+# - Total per pose: ~100 bytes
+#
+# max_path_size = 5000   -> ~0.5 MB
+# max_path_size = 10000  -> ~1.0 MB
+# max_path_size = 50000  -> ~5.0 MB
+# max_path_size = 100000 -> ~10 MB
+# max_path_size = 10000000 -> ~1 GB (NOT RECOMMENDED!)
+
+# ================================================
+# Example Configurations:
+# ================================================
+
+# Configuration for short tests (1-2 minute trajectories):
+# scara_forward_kinematics:
+#   ros__parameters:
+#     max_path_size: 5000
+#     min_distance_m: 0.0005  # 0.5mm
+
+# Configuration for medium trajectories (5-10 minutes):
+# scara_forward_kinematics:
+#   ros__parameters:
+#     max_path_size: 50000
+#     min_distance_m: 0.0001  # 0.1mm
+
+# Configuration for long trajectories (30+ minutes):
+# scara_forward_kinematics:
+#   ros__parameters:
+#     max_path_size: 100000
+#     min_distance_m: 0.0002  # 0.2mm
+
+# Configuration to use "elbow down" solution:
+# scara_inverse_kinematics:
+#   ros__parameters:
+#     elbow_up: false

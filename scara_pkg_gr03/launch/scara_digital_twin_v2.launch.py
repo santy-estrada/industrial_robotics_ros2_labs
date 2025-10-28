@@ -49,6 +49,7 @@ def generate_launch_description():
     default_model_path = os.path.join(pkg_robot_path, 'model', robot_file)
     default_rviz_config_path = os.path.join(pkg_robot_path, 'config', rviz_file)
     mux_config_path = os.path.join(pkg_robot_path, 'config', 'mux.yaml')
+    kinematics_config_path = os.path.join(pkg_robot_path, 'config', 'scara_kinematics_params.yaml')
 
     # Launch arguments
     rviz_arg = DeclareLaunchArgument(
@@ -108,6 +109,7 @@ def generate_launch_description():
         executable='scara_forward_kinematics',
         name='scara_forward_kinematics',
         output='screen',
+        parameters=[kinematics_config_path]
     )
     
     # Twist Mux (for command multiplexing)
@@ -128,6 +130,7 @@ def generate_launch_description():
         executable='scara_inverse_kinematics',
         name='scara_inverse_kinematics',
         output='screen',
+        parameters=[kinematics_config_path]
     )
     
     # SCARA Goal Pose Translator
