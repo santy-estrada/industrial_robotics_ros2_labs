@@ -16,7 +16,7 @@ class ScaraJointStatePublisher(Node):
         self.declare_parameter('joint2', 'arm_1_arm_2_joint')
         self.declare_parameter('joint3', 'arm_2_prismatic_joint')
 
-        self.declare_parameter('publish_rate', 50.0)      # Hz
+        self.declare_parameter('publish_rate', 20.0)      # Hz
         self.declare_parameter('max_path_size', 10000000)  # Max number of poses in path buffer
         self.declare_parameter('min_distance_m', 0.0001)  # Minimum distance (0.1mm) to publish new pose
 
@@ -106,10 +106,14 @@ class ScaraJointStatePublisher(Node):
         self.endEffector_z = end_effector_pose[2, 3]
 
         # Log computed positions for each joint and end effector
-        for idx, label in enumerate(["Joint 1", "Joint 2", "Joint 3", "End Effector"]):
-            pos = T[:, 3, idx]  # last column, first 3 rows
-            self.get_logger().info(f"{label} position: x={pos[0]:.4f} m, y={pos[1]:.4f} m, z={pos[2]:.4f} m")
+        # Commented out loop for all joints
+        # for idx, label in enumerate(["Joint 1", "Joint 2", "Joint 3", "End Effector"]):
+        #     pos = T[:, 3, idx]  # last column, first 3 rows
+        #     self.get_logger().info(f"{label} position: x={pos[0]:.4f} m, y={pos[1]:.4f} m, z={pos[2]:.4f} m")
             
+        # Only log end effector position
+        pos = T[:, 3, -1]  # End effector is the last transformation
+        self.get_logger().info(f"End Effector position: x={pos[0]:.4f} m, y={pos[1]:.4f} m, z={pos[2]:.4f} m")
             
     def _scara_configuration(self, msg: Twist):
         # The message sends angular velocity in deg/s. We convert it to rad/s
@@ -117,7 +121,16 @@ class ScaraJointStatePublisher(Node):
         # Linear position in mm, we convert it to m
         self.pj1 = math.radians(msg.linear.x)  # Joint 1 position (rad)
         self.pj2 = math.radians(msg.linear.y)  # Joint 2 position (rad)
-        self.pj3 = (msg.linear.z + 45) / 1000.0       # Joint 3 position (m)
+        
+        # Prismatic joint (pj3) conversion:
+        # msg.linear.z is in mm, where:
+        #   0 mm  → end effector at ground level (z = 0)
+        #   -10 mm → end effector 10mm above ground (z = 0.01m)
+        #   -5 mm  → end effector 5mm below ground (z = -0.005m)
+        # Formula: end_effector_z = -msg.linear.z / 1000.0
+        # pj3 = end_effector_z + DH_offset (0.064m)
+        self.pj3 = (msg.linear.z / 1000.0) + 0.064
+        
         self.vj1 = math.radians(msg.angular.x) # Joint 1 velocity (rad/s)
         self.vj2 = math.radians(msg.angular.y) # Joint 2 velocity (rad/s)
         # Joint 3 velocity is assumed always 0 (prismatic joint)       

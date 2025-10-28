@@ -137,7 +137,7 @@
     <joint name="arm_2_prismatic_joint" type="prismatic">
         <parent link="arm_2_link"/>
         <child link="prismatic_link"/>
-        <origin xyz="${arm_2_x-off_edge_center_arm2-prism_r-off_edge_prism_arm2} 0 ${-0.006}" rpy="0 0 0"/>
+        <origin xyz="${arm_2_x-off_edge_center_arm2-prism_r-off_edge_prism_arm2} 0 ${-0.011}" rpy="0 0 0"/>
         <axis xyz="0 0 -1"/>
         <limit effort="1" lower="${lower_limit_linear}" upper="${upper_limit_linear}" velocity="1"/>
         <dynamics damping="1" friction="1"/> 
@@ -152,6 +152,7 @@
             <material name="gray">
                 <color rgba="0.5 0.5 0.5 0.8"/> <!-- R G B A -->
             </material>
+            <!-- Visual origin adjusted: cylinder bottom should align with joint origin -->
             <origin xyz="0 0 ${prism_len/2}" rpy="0 0 0"/>
         </visual>
         <inertial>
@@ -164,7 +165,7 @@
                 <geometry>
                    <cylinder radius="${prism_r}" length="${prism_len}"/>
                 </geometry>
-                <origin xyz="0 0 ${prism_len/2}" rpy="0 0 0"/>
+                <origin xyz="0 0 ${-prism_len/2}" rpy="0 0 0"/>
             </collision>
     </link>
 

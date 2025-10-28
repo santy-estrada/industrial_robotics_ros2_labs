@@ -30,7 +30,7 @@ scara_trajectory_planner_v2:
     time_work_segment: 40.0
     time_segment_close: 2.0
     time_prismatic_up: 0.5
-    time_prismatic_down: 5.0
+    time_prismatic_down: 2.0
     time_xy_transition: 2.0
 
     # Publishing parameters
