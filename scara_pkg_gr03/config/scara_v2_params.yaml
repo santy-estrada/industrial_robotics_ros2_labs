@@ -5,6 +5,10 @@
 # Usage:
 #   ros2 run scara_pkg_gr03 scara_trajectory_planner_v2 --ros-args --params-file <path_to_this_file>
 #   ros2 run scara_pkg_gr03 dxf_exporter_node_v2 --ros-args --params-file <path_to_this_file>
+#
+# For testing without DXF files, see:
+#   - config/test_trajectory_params.yaml (programmatic shape generation)
+#   - launch/offline_processing_test.launch.py
 
 # Trajectory Planner V2 Parameters
 scara_trajectory_planner_v2:
@@ -19,7 +23,7 @@ scara_trajectory_planner_v2:
     # safe_height: Z position for transitions between figures (tool is raised)
     # prismatic_down_height: Z position during path execution (tool is lowered)
     safe_height: 10.0
-    prismatic_down_height: -5.0
+    prismatic_down_height: 0.0
     
     # Timing parameters (seconds)
     # time_work_segment: Duration for interpolating each work segment (line/arc)
@@ -27,7 +31,7 @@ scara_trajectory_planner_v2:
     # time_prismatic_up: Duration for raising the prismatic joint
     # time_prismatic_down: Duration for lowering the prismatic joint
     # time_xy_transition: Duration for XY movement between different figures
-    time_work_segment: 40.0
+    time_work_segment: 20.0
     time_segment_close: 2.0
     time_prismatic_up: 0.5
     time_prismatic_down: 2.0
@@ -50,7 +54,7 @@ scara_trajectory_planner_v2:
     # Initial positioning
     # initial_position_repeats: Number of times to send the first position
     #                           This ensures the robot reaches the starting position
-    initial_position_repeats: 150
+    initial_position_repeats: 200
 
 # DXF Exporter V2 Parameters
 dxf_exporter_node_v2:
@@ -66,7 +70,7 @@ dxf_exporter_node_v2:
     # workspace_center_x: Target X coordinate for the piece center
     # workspace_center_y: Target Y coordinate for the piece center
     workspace_center_x: 230.0
-    workspace_center_y: -70.0
+    workspace_center_y: -90.0
     
     # Scale factor
     # 1.0 = 100% (original size)

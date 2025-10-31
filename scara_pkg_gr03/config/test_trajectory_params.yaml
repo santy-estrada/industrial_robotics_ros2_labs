@@ -1,0 +1,97 @@
+# Test Trajectory Generator Parameters
+# ======================================
+# This file contains parameters for generating test trajectories programmatically
+# without needing DXF files.
+#
+# Usage:
+#   ros2 launch scara_pkg_gr03 offline_processing_test.launch.py
+
+test_trajectory_generator:
+  ros__parameters:
+    # Shape type: "circle", "square", "star", "spiral", "lissajous"
+    shape_type: "circle"
+    
+    # Number of points to generate for the trajectory
+    num_points: 100
+    
+    # Center position in workspace (mm)
+    center_x: 230.0
+    center_y: -70.0
+    
+    # Radius for circle, square, star, spiral (mm)
+    radius: 50.0
+    
+    # Parameters for Lissajous curve
+    # x = A*sin(a*t), y = B*sin(b*t)
+    A: 50.0
+    B: 50.0
+    a: 3.0
+    b: 2.0
+    
+    # Parameters for spiral
+    # Number of complete turns
+    spiral_turns: 3.0
+
+# Example configurations for different shapes:
+# =============================================
+
+# Circle (default):
+# test_trajectory_generator:
+#   ros__parameters:
+#     shape_type: "circle"
+#     num_points: 100
+#     radius: 50.0
+#     center_x: 230.0
+#     center_y: -70.0
+
+# Square:
+# test_trajectory_generator:
+#   ros__parameters:
+#     shape_type: "square"
+#     num_points: 200
+#     radius: 50.0  # Half the side length
+#     center_x: 230.0
+#     center_y: -70.0
+
+# Star:
+# test_trajectory_generator:
+#   ros__parameters:
+#     shape_type: "star"
+#     num_points: 200
+#     radius: 50.0
+#     center_x: 230.0
+#     center_y: -70.0
+
+# Spiral (Archimedean):
+# test_trajectory_generator:
+#   ros__parameters:
+#     shape_type: "spiral"
+#     num_points: 300
+#     radius: 50.0
+#     spiral_turns: 3.0
+#     center_x: 230.0
+#     center_y: -70.0
+
+# Lissajous curve (3:2 ratio):
+# test_trajectory_generator:
+#   ros__parameters:
+#     shape_type: "lissajous"
+#     num_points: 200
+#     A: 50.0
+#     B: 50.0
+#     a: 3.0
+#     b: 2.0
+#     center_x: 230.0
+#     center_y: -70.0
+
+# Lissajous curve (5:4 ratio):
+# test_trajectory_generator:
+#   ros__parameters:
+#     shape_type: "lissajous"
+#     num_points: 400
+#     A: 60.0
+#     B: 40.0
+#     a: 5.0
+#     b: 4.0
+#     center_x: 230.0
+#     center_y: -70.0

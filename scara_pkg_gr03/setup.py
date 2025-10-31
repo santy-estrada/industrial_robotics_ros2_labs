@@ -39,6 +39,7 @@ setup(
             'offline_inverse_kinematics= scara_pkg_gr03.offline_inverse_kinematics:main',
             'joint_trajectory_interpolator= scara_pkg_gr03.joint_trajectory_interpolator:main',
             'trajectory_executor= scara_pkg_gr03.trajectory_executor:main',
+            'test_trajectory_generator= scara_pkg_gr03.test_trajectory_generator:main',
         ],
     },
 )
