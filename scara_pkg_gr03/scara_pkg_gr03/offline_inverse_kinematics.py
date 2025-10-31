@@ -39,7 +39,7 @@ class OfflineInverseKinematics(Node):
         
         # Robot parameters
         self.r1 = 0.16  # First arm length (m)
-        self.r2 = 0.143  # Second arm length (m)
+        self.r2 = 0.155  # Second arm length (m) either 0.143 or 0.155
         self.delta3 = 0.0  # Prismatic joint offset (m)
         
         self.get_logger().info(f"=== Offline Inverse Kinematics Configuration ===")

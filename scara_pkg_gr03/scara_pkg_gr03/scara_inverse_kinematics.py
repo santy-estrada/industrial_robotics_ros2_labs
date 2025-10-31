@@ -21,7 +21,7 @@ class ScaraInverseKinematics(Node):
         # ---- State ----
         #Parameters of the robot
         self.r1 = 0.16  # Length of first arm (m)
-        self.r2 = 0.143  # Length of second arm (m)
+        self.r2 = 0.143  # Length of second arm (m) it could be 0.155
         self.delta3 = 0.0  # Minimum extension of prismatic joint (m)
         self.flag = False 
 
