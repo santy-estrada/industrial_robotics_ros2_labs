@@ -135,17 +135,9 @@ class OfflineTrajectoryGenerator(Node):
         
         first_point = self.all_points[0]
         
-        # Start at home position with safe height
+        # Repeat starting point at safe height (gives robot time to reach position)
         for _ in range(self.initial_position_repeats):
-            full_trajectory.append((self.home_x, self.home_y, self.safe_height))
-        
-        # Move XY from home to first point (keeping safe height)
-        home_to_first_traj = self._interpolate_segment(
-            self.home_x, self.home_y, self.safe_height,
-            first_point[0], first_point[1], self.safe_height,
-            self.time_xy_transition
-        )
-        full_trajectory.extend(home_to_first_traj)
+            full_trajectory.append((first_point[0], first_point[1], self.safe_height))
         
         for fig_idx, fig in enumerate(self.figures_info):
             num_points = fig["num_points"]
@@ -233,16 +225,7 @@ class OfflineTrajectoryGenerator(Node):
         )
         full_trajectory.extend(final_up_traj)
         
-        # Move XY back to home (keeping safe height)
-        last_point = full_trajectory[-1]
-        home_traj = self._interpolate_segment(
-            last_point[0], last_point[1], self.safe_height,
-            self.home_x, self.home_y, self.safe_height,
-            self.time_xy_transition
-        )
-        full_trajectory.extend(home_traj)
-        
-        # Stay at home position
+        # Jump to home position (no interpolation)
         for _ in range(20):
             full_trajectory.append((self.home_x, self.home_y, self.safe_height))
         

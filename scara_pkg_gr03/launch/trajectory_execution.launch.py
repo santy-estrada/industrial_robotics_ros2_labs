@@ -33,31 +33,12 @@ def generate_launch_description():
     executor_params = os.path.join(pkg_dir, 'config', 'trajectory_executor_params.yaml')
     mux_config_path = os.path.join(pkg_dir, 'config', 'mux.yaml')
     
-    # Launch arguments
-    publish_rate_arg = DeclareLaunchArgument(
-        'publish_rate_hz',
-        default_value='20.0',
-        description='Rate at which to publish configurations to Pico (Hz)'
-    )
-    
-    auto_start_arg = DeclareLaunchArgument(
-        'start_execution',
-        default_value='true',
-        description='Automatically start execution when trajectory is loaded'
-    )
-    
     # Nodes
     executor = Node(
         package='scara_pkg_gr03',
         executable='trajectory_executor',
         name='trajectory_executor',
-        parameters=[
-            executor_params,
-            {
-                'publish_rate_hz': LaunchConfiguration('publish_rate_hz'),
-                'start_execution': LaunchConfiguration('start_execution')
-            }
-        ],
+        parameters=[executor_params],
         output='screen'
     )
     
@@ -75,8 +56,6 @@ def generate_launch_description():
     )
     
     return LaunchDescription([
-        publish_rate_arg,
-        auto_start_arg,
         twist_mux,
         executor
     ])

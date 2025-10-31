@@ -4,7 +4,7 @@
 offline_trajectory_generator:
   ros__parameters:
     # Interpolation type for waypoint generation: "linear", "cubic", or "quintic"
-    interpolation_type: "cubic"
+    interpolation_type: "linear"
     
     # Waypoint density (waypoints per second)
     # This replaces publish_rate from online system
@@ -12,14 +12,14 @@ offline_trajectory_generator:
     waypoint_density: 20.0
     
     # Prismatic joint heights (mm)
-    safe_height: 10.0
-    prismatic_down_height: 0.0
+    safe_height: 12.0
+    prismatic_down_height: 1.0
     
     # Timing parameters (seconds)
     time_work_segment: 20.0
     time_segment_close: 5.0
-    time_prismatic_up: 5.0
-    time_prismatic_down: 5.0
+    time_prismatic_up: 2.0
+    time_prismatic_down: 2.0
     time_xy_transition: 2.0
     
     # Home position (mm)
