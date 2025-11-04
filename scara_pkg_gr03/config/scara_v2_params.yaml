@@ -69,8 +69,8 @@ dxf_exporter_node_v2:
     # The DXF geometric center will be moved to this location in the robot workspace
     # workspace_center_x: Target X coordinate for the piece center
     # workspace_center_y: Target Y coordinate for the piece center
-    workspace_center_x: 230.0
-    workspace_center_y: -90.0
+    workspace_center_x: 250.0
+    workspace_center_y: -80.0
     
     # Scale factor
     # 1.0 = 100% (original size)

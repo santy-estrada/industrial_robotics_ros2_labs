@@ -42,8 +42,8 @@ class ScaraJointStatePublisher(Node):
         
         # Path tracking with distance filter
         self.last_published_path_point = None  # (x, y, z) of last published point
-   
-        self.dh_matrix = np.array([[0, 0, 0.082, 0], [0.16, 0, 0, 0], [0.143, math.pi, 0.018, 0], [0, 0, 0.064, 0]], dtype=float) # [a, alpha, Sj, thetaj]    
+                                                                      #0.143 or 0.155
+        self.dh_matrix = np.array([[0, 0, 0.082, 0], [0.16, 0, 0, 0], [0.155, math.pi, 0.018, 0], [0, 0, 0.064, 0]], dtype=float) # [a, alpha, Sj, thetaj]    
 
         # ---- Pub/Sub ----
         qos = QoSProfile(depth=10)

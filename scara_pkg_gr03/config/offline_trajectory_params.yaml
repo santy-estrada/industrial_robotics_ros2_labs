@@ -19,15 +19,15 @@ offline_trajectory_generator:
     time_work_segment: 20.0
     time_segment_close: 5.0
     time_prismatic_up: 2.0
-    time_prismatic_down: 2.0
+    time_prismatic_down: 5.0
     time_xy_transition: 2.0
     
     # Home position (mm)
-    home_x: 303.0
+    home_x: 315.0
     home_y: 0.0
     
     # Initial positioning
-    initial_position_repeats: 20
+    initial_position_repeats: 50
 
 joint_trajectory_interpolator:
   ros__parameters:
