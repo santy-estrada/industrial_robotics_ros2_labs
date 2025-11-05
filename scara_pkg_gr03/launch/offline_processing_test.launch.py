@@ -82,7 +82,12 @@ def generate_launch_description():
         executable='offline_trajectory_generator',
         name='offline_trajectory_generator',
         output='screen',
-        parameters=[offline_params]
+        parameters=[
+            offline_params,
+            {
+                'dxf_file': ['test_', LaunchConfiguration('shape_type'), '.dxf']  # e.g., test_circle.dxf
+            }
+        ]
     )
     
     offline_ik_node = Node(

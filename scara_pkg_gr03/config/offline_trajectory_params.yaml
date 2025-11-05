@@ -3,17 +3,20 @@
 
 offline_trajectory_generator:
   ros__parameters:
+    # DXF file name (for CSV naming)
+    dxf_file: "f1_final.dxf"
+    
     # Interpolation type for waypoint generation: "linear", "cubic", or "quintic"
     interpolation_type: "linear"
     
     # Waypoint density (waypoints per second)
     # This replaces publish_rate from online system
     # num_points = time * waypoint_density
-    waypoint_density: 20.0
+    waypoint_density: 15.0
     
     # Prismatic joint heights (mm)
     safe_height: 12.0
-    prismatic_down_height: 1.0
+    prismatic_down_height: 0.0
     
     # Timing parameters (seconds)
     time_work_segment: 20.0

@@ -40,7 +40,7 @@ def generate_launch_description():
         package='scara_pkg_gr03',
         executable='offline_trajectory_generator',
         name='offline_trajectory_generator',
-        parameters=[interpolator_params],
+        parameters=[interpolator_params, dxf_params],  # Include DXF params for dxf_file name
         output='screen'
     )
     

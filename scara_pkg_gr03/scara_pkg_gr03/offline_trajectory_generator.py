@@ -44,6 +44,10 @@ from geometry_msgs.msg import PoseStamped
 from rclpy.qos import QoSProfile, QoSDurabilityPolicy, QoSReliabilityPolicy
 import numpy as np
 import json
+import os
+import csv
+from pathlib import Path as PathLib
+from ament_index_python.packages import get_package_share_directory
 
 
 class OfflineTrajectoryGenerator(Node):
@@ -63,6 +67,7 @@ class OfflineTrajectoryGenerator(Node):
         self.declare_parameter('home_x', 303.0)
         self.declare_parameter('home_y', 0.0)
         self.declare_parameter('initial_position_repeats', 10)
+        self.declare_parameter('dxf_file', 'unknown.dxf')  # For naming the CSV file
         
         self.interpolation_type = self.get_parameter('interpolation_type').value
         self.safe_height = self.get_parameter('safe_height').value
@@ -76,6 +81,7 @@ class OfflineTrajectoryGenerator(Node):
         self.home_x = self.get_parameter('home_x').value
         self.home_y = self.get_parameter('home_y').value
         self.initial_position_repeats = self.get_parameter('initial_position_repeats').value
+        self.dxf_file = self.get_parameter('dxf_file').value
         
         self.get_logger().info("=== Offline Trajectory Generator Configuration ===")
         self.get_logger().info(f"Interpolation type: {self.interpolation_type}")
@@ -248,6 +254,9 @@ class OfflineTrajectoryGenerator(Node):
         
         self.publisher.publish(pointcloud_msg)
         self.get_logger().info(f"📤 Published {len(pointcloud_msg.points)} waypoints for IK processing")
+        
+        # Save trajectory to CSV
+        self.save_trajectory_to_csv(full_trajectory)
     
     def _interpolate_segment(self, x0, y0, z0, xf, yf, zf, time_duration):
         """Interpolate between two points. num_points = time * density."""
@@ -308,6 +317,45 @@ class OfflineTrajectoryGenerator(Node):
 
         self.rviz_publisher.publish(path_msg)
         self.get_logger().info(f"📐 Published trajectory to RViz: {len(path_msg.poses)} poses (in meters)")
+    
+    def save_trajectory_to_csv(self, full_trajectory):
+        """Save the ideal trajectory to a CSV file with automatic numbering."""
+        try:
+            # Use fixed path to source directory
+            # /home/santy/ros2_ws_2502/src/scara_pkg_gr03/trajectories
+            trajectories_dir = PathLib('/home/santy/ros2_ws_2502/src/scara_pkg_gr03/trajectories')
+            
+            self.get_logger().info(f"📁 Trajectories directory: {trajectories_dir}")
+            
+            # Create trajectories directory if it doesn't exist
+            trajectories_dir.mkdir(exist_ok=True)
+            
+            # Extract base name from dxf_file
+            dxf_basename = PathLib(self.dxf_file).stem  # e.g., "f1_final" from "f1_final.dxf"
+            
+            # Find next available test number
+            test_number = 1
+            while True:
+                csv_filename = f"{dxf_basename}_ideal_{test_number}.csv"
+                csv_path = trajectories_dir / csv_filename
+                if not csv_path.exists():
+                    break
+                test_number += 1
+            
+            # Write CSV file
+            with open(csv_path, 'w', newline='') as csvfile:
+                writer = csv.writer(csvfile)
+                # Header
+                writer.writerow(['x_mm', 'y_mm', 'z_mm'])
+                # Data
+                for x, y, z in full_trajectory:
+                    writer.writerow([f"{x:.6f}", f"{y:.6f}", f"{z:.6f}"])
+            
+            self.get_logger().info(f"💾 Saved ideal trajectory to: {csv_path}")
+            self.get_logger().info(f"   Total points: {len(full_trajectory)}")
+            
+        except Exception as e:
+            self.get_logger().error(f"❌ Failed to save trajectory CSV: {e}")
 
 
 def main(args=None):
